@@ -2,6 +2,9 @@ import csv
 import re
 import os
 
+# Ruta donde están los archivos CSV
+CARPETA_DATOS = r"D:\PIA_ProgBas\PIA_PrograBas\Guardar_datos"
+
 def validar_fila(fila):
     """
     Validación de datos con expresiones regulares y reglas lógicas:
@@ -21,18 +24,21 @@ def validar_fila(fila):
         errores.append("Formato de fecha/hora inválido")
 
     # Validar AQI
-    if not re.match(r"^[1-5]$", fila["aqi"]):
+    if not re.match(r"^[1-5]$", str(fila["aqi"])):
         errores.append("AQI inválido")
 
     # Validar valores numéricos de contaminantes
     contaminantes = ["co", "no", "no2", "o3", "so2", "pm2_5", "pm10", "nh3"]
     for c in contaminantes:
-        if not re.match(r"^\d+(\.\d+)?$", fila[c]):
+        valor = str(fila[c]).strip()
+        if not re.match(r"^\d+(\.\d+)?$", valor):
             errores.append(f"{c.upper()} no es numérico")
 
     return errores
 
-def leer_csv(ruta_archivo):
+def leer_csv(nombre_archivo):
+    ruta_archivo = os.path.join(CARPETA_DATOS, nombre_archivo)
+    
     if not os.path.exists(ruta_archivo):
         print(f"El archivo {ruta_archivo} no existe.")
         return
@@ -51,7 +57,7 @@ def leer_csv(ruta_archivo):
             fila_num += 1
 
 def main():
-    archivo = input("📂 Nombre del archivo CSV a validar (ej: datos_monterrey.csv): ").strip()
+    archivo = input("Nombre del archivo CSV a validar (ej: datos_monterrey.csv): ").strip()
     leer_csv(archivo)
 
 if __name__ == "__main__":
