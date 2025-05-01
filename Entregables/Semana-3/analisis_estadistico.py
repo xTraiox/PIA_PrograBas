@@ -47,7 +47,7 @@ def resumen_estadistico(nombre, datos):
     print(f" - Rango: {np.ptp(datos):.2f}")
 
 # Ejecutar análisis
-print(f"\n📊 Estadísticas para la ciudad: {ciudad.upper()}")
+print(f"\n Estadísticas para la ciudad: {ciudad.upper()}")
 for contaminante, valores in datos_contaminantes.items():
     if valores:
         resumen_estadistico(contaminante, valores)
