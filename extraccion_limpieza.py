@@ -99,7 +99,6 @@ def main():
     datos_json = consultar_calidad_aire(ciudad_input)
 
     if datos_json:
-        # Crear la carpeta si no existe
         if not os.path.exists(CARPETA_DATOS):
             os.makedirs(CARPETA_DATOS)
 

@@ -6,7 +6,6 @@ from openpyxl.styles import Font, Alignment, PatternFill
 # Carpeta de origen de los CSV y destino del Excel
 CARPETA_DATOS = r"D:\PIA_ProgBas\PIA_PrograBas\Guardar_datos"
 CARPETA_LIBROS = r"D:\PIA_ProgBas\PIA_PrograBas\Libros"
-ARCHIVO_EXCEL = os.path.join(CARPETA_LIBROS, "calidad_aire.xlsx")
 
 # Estilos
 ESTILO_ENCABEZADO = {
@@ -19,14 +18,15 @@ ESTILO_CELDA = Alignment(horizontal="center", vertical="center")
 def exportar_a_excel(ciudad):
     ciudad = ciudad.strip().lower()
     archivo_csv = os.path.join(CARPETA_DATOS, f"datos_{ciudad}.csv")
+    archivo_excel = os.path.join(CARPETA_LIBROS, f"calidad_aire_{ciudad}.xlsx")
     
     if not os.path.exists(archivo_csv):
         print(f"Archivo CSV no encontrado para la ciudad '{ciudad}'.")
         return
 
     # Cargar o crear libro de Excel
-    if os.path.exists(ARCHIVO_EXCEL):
-        wb = load_workbook(ARCHIVO_EXCEL)
+    if os.path.exists(archivo_excel):
+        wb = load_workbook(archivo_excel)
     else:
         wb = Workbook()
         wb.remove(wb.active)
@@ -55,8 +55,8 @@ def exportar_a_excel(ciudad):
         ws.column_dimensions[col[0].column_letter].width = max_length + 2
 
     # Guardar en la carpeta Libros
-    wb.save(ARCHIVO_EXCEL)
-    print(f"Datos exportados a Excel: {ARCHIVO_EXCEL}")
+    wb.save(archivo_excel)
+    print(f"Datos exportados a Excel: {archivo_excel}")
 
 # Ejecución directa
 if __name__ == "__main__":
