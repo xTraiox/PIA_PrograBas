@@ -17,12 +17,17 @@ ESTILO_CELDA = Alignment(horizontal="center", vertical="center")
 
 def exportar_a_excel(ciudad):
     ciudad = ciudad.strip().lower()
-    archivo_csv = os.path.join(CARPETA_DATOS, f"datos_{ciudad}.csv")
-    archivo_excel = os.path.join(CARPETA_LIBROS, f"calidad_aire_{ciudad}.xlsx")
-    
+    carpeta_ciudad = os.path.join(CARPETA_DATOS, ciudad, "csv")
+    archivo_csv = os.path.join(carpeta_ciudad, f"datos_{ciudad}.csv")
+
     if not os.path.exists(archivo_csv):
         print(f"Archivo CSV no encontrado para la ciudad '{ciudad}'.")
         return
+
+    # Crear carpeta para la ciudad en Libros
+    carpeta_libros_ciudad = os.path.join(CARPETA_LIBROS, ciudad)
+    os.makedirs(carpeta_libros_ciudad, exist_ok=True)
+    archivo_excel = os.path.join(carpeta_libros_ciudad, f"calidad_aire_{ciudad}.xlsx")
 
     # Cargar o crear libro de Excel
     if os.path.exists(archivo_excel):
@@ -34,7 +39,7 @@ def exportar_a_excel(ciudad):
     # Eliminar hoja previa si existe
     if ciudad.capitalize() in wb.sheetnames:
         del wb[ciudad.capitalize()]
-        
+
     ws = wb.create_sheet(title=ciudad.capitalize())
 
     with open(archivo_csv, newline='', encoding='utf-8') as f:
@@ -54,7 +59,7 @@ def exportar_a_excel(ciudad):
         max_length = max(len(str(c.value)) if c.value else 0 for c in col)
         ws.column_dimensions[col[0].column_letter].width = max_length + 2
 
-    # Guardar en la carpeta Libros
+    # Guardar en la carpeta de la ciudad
     wb.save(archivo_excel)
     print(f"Datos exportados a Excel: {archivo_excel}")
 

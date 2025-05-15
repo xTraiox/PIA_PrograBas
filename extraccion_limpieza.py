@@ -7,7 +7,7 @@ from datetime import datetime
 
 API_KEY = '21d1855f81c6b624b91ca2580ea5b172'
 URL_BASE = 'http://api.openweathermap.org/data/2.5/air_pollution'
-CARPETA_DATOS = r"D:\PIA_ProgBas\PIA_PrograBas\Guardar_datos"  # Ruta absoluta
+CARPETA_DATOS = r"D:\PIA_ProgBas\PIA_PrograBas\Guardar_datos"
 
 # Diccionario de ciudades
 ciudades = {
@@ -21,15 +21,21 @@ def validar_ciudad(ciudad):
     patron = re.compile(r"^[a-zA-Záéíóúñ\s]+$", re.IGNORECASE)
     return bool(patron.match(ciudad))
 
+def crear_estructura_carpetas(ciudad):
+    ciudad_path = os.path.join(CARPETA_DATOS, ciudad)
+    txt_path = os.path.join(ciudad_path, 'txt')
+    csv_path = os.path.join(ciudad_path, 'csv')
+    json_path = os.path.join(ciudad_path, 'json')
+    os.makedirs(txt_path, exist_ok=True)
+    os.makedirs(csv_path, exist_ok=True)
+    os.makedirs(json_path, exist_ok=True)
+    return txt_path, csv_path, json_path
+
 def consultar_calidad_aire(ciudad):
     ciudad = ciudad.lower()
     if ciudad in ciudades:
         lat, lon = ciudades[ciudad]
-        params = {
-            'lat': lat,
-            'lon': lon,
-            'appid': API_KEY
-        }
+        params = {'lat': lat, 'lon': lon, 'appid': API_KEY}
         respuesta = requests.get(URL_BASE, params=params)
         if respuesta.status_code == 200:
             return respuesta.json()
@@ -63,31 +69,29 @@ def limpiar_datos(json_data, ciudad):
         print(f"Error al limpiar datos: campo faltante - {e}")
         return []
 
-def guardar_datos_csv(datos, ciudad):
-    # Crear la carpeta si no existe
-    if not os.path.exists(CARPETA_DATOS):
-        os.makedirs(CARPETA_DATOS)
+def guardar_datos(datos, ciudad):
+    txt_path, csv_path, json_path = crear_estructura_carpetas(ciudad)
 
-    nombre_csv = os.path.join(CARPETA_DATOS, f"datos_{ciudad.lower()}.csv")
-    nombre_txt = os.path.join(CARPETA_DATOS, f"datos_{ciudad.lower()}.txt")
+    nombre_csv = os.path.join(csv_path, f"datos_{ciudad.lower()}.csv")
+    nombre_txt = os.path.join(txt_path, f"datos_{ciudad.lower()}.txt")
+    nombre_json = os.path.join(json_path, f"datos_{ciudad.lower()}.json")
+
     campos = ["ciudad", "fecha_hora", "aqi", "co", "no", "no2", "o3", "so2", "pm2_5", "pm10", "nh3"]
 
-    archivo_existente = os.path.exists(nombre_csv)
-    modo = 'a' if archivo_existente else 'w'
-
-    with open(nombre_csv, mode=modo, newline='', encoding='utf-8') as f:
+    with open(nombre_csv, mode='w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=campos)
-        if not archivo_existente:
-            writer.writeheader()
+        writer.writeheader()
         writer.writerows(datos)
+    print(f"Datos CSV guardados en {nombre_csv}")
 
-    print(f"Datos estructurados guardados como {nombre_csv}")
-
-    with open(nombre_txt, mode='a', encoding='utf-8') as f:
+    with open(nombre_txt, mode='w', encoding='utf-8') as f:
         for fila in datos:
             f.write(json.dumps(fila, ensure_ascii=False) + '\n')
+    print(f"Datos TXT guardados en {nombre_txt}")
 
-    print(f"Datos también guardados como {nombre_txt}")
+    with open(nombre_json, "w", encoding="utf-8") as archivo:
+        json.dump(datos, archivo, indent=4, ensure_ascii=False)
+    print(f"Datos JSON guardados en {nombre_json}")
 
 def main():
     ciudad_input = input("Ingresa el nombre de la ciudad a consultar: ").strip()
@@ -99,17 +103,9 @@ def main():
     datos_json = consultar_calidad_aire(ciudad_input)
 
     if datos_json:
-        if not os.path.exists(CARPETA_DATOS):
-            os.makedirs(CARPETA_DATOS)
-
-        nombre_json = os.path.join(CARPETA_DATOS, f"datos_{ciudad_input.lower()}.json")
-        with open(nombre_json, "w", encoding="utf-8") as archivo:
-            json.dump(datos_json, archivo, indent=4, ensure_ascii=False)
-        print(f"JSON original guardado como {nombre_json}")
-
         datos_limpios = limpiar_datos(datos_json, ciudad_input)
         if datos_limpios:
-            guardar_datos_csv(datos_limpios, ciudad_input)
+            guardar_datos(datos_limpios, ciudad_input)
         else:
             print("No se pudieron limpiar los datos.")
 

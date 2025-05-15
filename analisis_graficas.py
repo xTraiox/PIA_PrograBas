@@ -10,11 +10,14 @@ CARPETA_DATOS = r"D:\PIA_ProgBas\PIA_PrograBas\Guardar_datos"
 CARPETA_GRAFICAS = r"D:\PIA_ProgBas\PIA_PrograBas\graficas"
 # ==================================
 
+# Solicitar ciudad
 def solicitar_ciudad():
     return input("Ingrese el nombre de la ciudad (ej. monterrey, cdmx): ").strip().lower()
 
+# Validar archivo
 def validar_archivo(ciudad):
-    archivo_csv = os.path.join(CARPETA_DATOS, f"datos_{ciudad}.csv")
+    carpeta_ciudad = os.path.join(CARPETA_DATOS, ciudad, "csv")
+    archivo_csv = os.path.join(carpeta_ciudad, f"datos_{ciudad}.csv")
     if not os.path.exists(archivo_csv):
         print(f"No se encontró el archivo para la ciudad '{ciudad}'.")
         return None
@@ -34,6 +37,7 @@ def leer_datos(archivo_csv):
                     continue
     return datos_contaminantes
 
+# Resumen estadístico
 def resumen_estadistico(nombre, datos):
     print(f"\n {nombre.upper()}")
     print(f" - Media: {np.mean(datos):.2f}")
@@ -49,7 +53,8 @@ def resumen_estadistico(nombre, datos):
 
 # Generar gráficas
 def generar_graficas(datos, ciudad):
-    os.makedirs(CARPETA_GRAFICAS, exist_ok=True)
+    carpeta_graficas_ciudad = os.path.join(CARPETA_GRAFICAS, ciudad)
+    os.makedirs(carpeta_graficas_ciudad, exist_ok=True)
     for contaminante, valores in datos.items():
         if valores:
             plt.figure()
@@ -59,11 +64,12 @@ def generar_graficas(datos, ciudad):
             plt.ylabel("Concentración")
             plt.grid()
             plt.legend()
-            archivo_grafica = os.path.join(CARPETA_GRAFICAS, f"grafica_{contaminante}_{ciudad}.png")
+            archivo_grafica = os.path.join(carpeta_graficas_ciudad, f"grafica_{contaminante}_{ciudad}.png")
             plt.savefig(archivo_grafica)
             plt.close()
             print(f"Gráfica guardada en: {archivo_grafica}")
 
+# Main
 def main():
     ciudad = solicitar_ciudad()
     archivo_csv = validar_archivo(ciudad)

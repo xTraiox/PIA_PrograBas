@@ -36,8 +36,10 @@ def validar_fila(fila):
 
     return errores
 
-def leer_csv(nombre_archivo):
-    ruta_archivo = os.path.join(CARPETA_DATOS, nombre_archivo)
+
+def leer_csv(nombre_archivo, ciudad):
+    carpeta_ciudad = os.path.join(CARPETA_DATOS, ciudad, "csv")
+    ruta_archivo = os.path.join(carpeta_ciudad, nombre_archivo)
     
     if not os.path.exists(ruta_archivo):
         print(f"El archivo {ruta_archivo} no existe.")
@@ -56,9 +58,12 @@ def leer_csv(nombre_archivo):
                 print(f"Fila {fila_num} válida")
             fila_num += 1
 
+
 def main():
-    archivo = input("Nombre del archivo CSV a validar (ej: datos_monterrey.csv): ").strip()
-    leer_csv(archivo)
+    ciudad = input("Ingrese el nombre de la ciudad: ").strip().lower()
+    archivo = f"datos_{ciudad}.csv"
+    leer_csv(archivo, ciudad)
+
 
 if __name__ == "__main__":
     main()
